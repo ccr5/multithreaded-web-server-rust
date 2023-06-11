@@ -1,16 +1,21 @@
 use std::{
     fs,
     io::{prelude::*, BufReader},
-    net::{TcpListener, TcpStream},
+    net::{TcpListener, TcpStream}, thread,
 };
+
+use multithreaded_web_server_rust::ThreadPool;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(1);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
